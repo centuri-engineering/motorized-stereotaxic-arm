@@ -10,9 +10,15 @@
 int Count = 0; /* counter to count number of steps made */
 boolean Direction = LOW; /* ratational direction of stepper motors*/
 
-int microStepping = 16;
-int distRevo = 1000; //Distance in um for 1 complete revolution
-int speedTranslation = 10; // in um/s
+int STEPS_MOTOR = 200;
+int MICRO_STEP = 16;
+float DIST_FULL_REVO = 1000; //Translation distabce in um for 1 complete revolution
+float STEPS_FULL_REVO;
+float STEPS_PER_UM;
+float SPEED_TRANSL = 10; // in um/s
+float SPEED_TRANSL_STEPS; // in steps/s
+float DELAY_AFTER_STEP;
+
 
 void setup()
 {
@@ -21,47 +27,26 @@ void setup()
   pinMode(EN, OUTPUT);
   pinMode(X_DIR, OUTPUT);
   pinMode(X_STEP, OUTPUT);
-  pinMode(Y_DIR, OUTPUT);
-  pinMode(Y_STEP, OUTPUT);
-  pinMode(Z_DIR, OUTPUT);
-  pinMode(Z_STEP, OUTPUT);
-  pinMode(A_DIR, OUTPUT);
-  pinMode(A_STEP, OUTPUT);
   digitalWrite(EN, LOW); //low to enable
-
-  
+  STEPS_FULL_REVO = STEPS_MOTOR*MICRO_STEP;
+  Serial.println(STEPS_FULL_REVO);
+  STEPS_PER_UM = STEPS_FULL_REVO/DIST_FULL_REVO;
+  Serial.println(STEPS_PER_UM);
+  SPEED_TRANSL_STEPS = SPEED_TRANSL*STEPS_PER_UM;
+  Serial.println(SPEED_TRANSL_STEPS);
+  DELAY_AFTER_STEP = 1/SPEED_TRANSL_STEPS;
+  Serial.println(DELAY_AFTER_STEP, DEC);
 }
 void loop()
 {
-//  /* count one step */
-//  Count++;
-//  /* if reached 500 steps then change the stepper direction and reset the
-//    counter*/
-//  if (Count >= 500)
-//  {
-//    Direction = !Direction;
-//    digitalWrite(X_DIR, Direction); // Low = CW
-//    digitalWrite(Y_DIR, Direction); // Low = CW
-//    digitalWrite(Z_DIR, Direction); // Low = CW
-//    digitalWrite(A_DIR, Direction); // Low = CW
-//    Count = 0;
-//  }
-
-  /* Step the X, Y, Z, and A Motoren */
+  //Serial.println("here ");
+    if (Serial.available() > 0) {
+    // read the incoming byte:
+    Serial.print("I received: ");
+  }
+  
   digitalWrite(X_STEP, HIGH);
   delayMicroseconds(31250);
-//  digitalWrite(Y_STEP, HIGH);
-//  delay(10);
-//  digitalWrite(Z_STEP, HIGH);
-//  delay(10);
-//  digitalWrite(A_STEP, HIGH);
-//  delay(10);
   digitalWrite(X_STEP, LOW);
   delayMicroseconds(31250);
-//  digitalWrite(Y_STEP, LOW);
-//  delay(10);
-//  digitalWrite(Z_STEP, LOW);
-//  delay(10);
-//  digitalWrite(A_STEP, LOW);
-//  delay(10);
 }
