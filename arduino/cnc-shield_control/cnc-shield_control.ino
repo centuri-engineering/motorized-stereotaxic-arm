@@ -18,33 +18,62 @@ float STEPS_PER_UM;
 float SPEED_TRANSL = 10; // in um/s
 float SPEED_TRANSL_STEPS; // in steps/s
 float DELAY_AFTER_STEP;
-
+float DELAY_AFTER_STEP_MS; // delay in ms
+float DELAY_AFTER_STEP_MS_RND; // delay in ms
+float CORECT_SPEED_TRANSL;
+String INCOMING_STR;
+int INCOMING_INT;
 
 void setup()
 {
+  delay(150);
   Serial.begin(9600);
   /* configure the stepper drive pins as outputs */
   pinMode(EN, OUTPUT);
   pinMode(X_DIR, OUTPUT);
   pinMode(X_STEP, OUTPUT);
   digitalWrite(EN, LOW); //low to enable
-  STEPS_FULL_REVO = STEPS_MOTOR*MICRO_STEP;
-  Serial.println(STEPS_FULL_REVO);
-  STEPS_PER_UM = STEPS_FULL_REVO/DIST_FULL_REVO;
-  Serial.println(STEPS_PER_UM);
-  SPEED_TRANSL_STEPS = SPEED_TRANSL*STEPS_PER_UM;
-  Serial.println(SPEED_TRANSL_STEPS);
-  DELAY_AFTER_STEP = 1/SPEED_TRANSL_STEPS;
-  Serial.println(DELAY_AFTER_STEP, DEC);
+  STEPS_FULL_REVO = STEPS_MOTOR * MICRO_STEP;
+  STEPS_PER_UM = STEPS_FULL_REVO / DIST_FULL_REVO;
+  SPEED_TRANSL_STEPS = SPEED_TRANSL * STEPS_PER_UM;
+  DELAY_AFTER_STEP_MS = 1 / SPEED_TRANSL_STEPS * 1000;
+  DELAY_AFTER_STEP_MS_RND = round(DELAY_AFTER_STEP_MS);
+  CORECT_SPEED_TRANSL = 1 / DELAY_AFTER_STEP_MS_RND * 1000 / STEPS_PER_UM;
+
+  Serial.println("Type the distance (in um), then enter : ");
+  Serial.println("(Positive values => arm will go up; Negative values => arm will go down.)");
+  while (Serial.available() <= 0) {
+  }
+  // read the incoming byte:
+  INCOMING_STR = Serial.readString();
+  INCOMING_INT = INCOMING_STR.toInt();
+
+  Serial.println("Resume:");
+  Serial.print("Corrected speed (um/s): ");
+  Serial.println(CORECT_SPEED_TRANSL);
+  Serial.print("Distance (um): ");
+  Serial.println(INCOMING_INT);
+
+  
+  Serial.println("Type the distance (in um), then enter : ");
+  Serial.println("(Positive values => arm will go up; Negative values => arm will go down.)");
+  while (Serial.available() <= 0) {
+  }
+  // read the incoming byte:
+  INCOMING_STR = Serial.readString();
+  INCOMING_INT = INCOMING_STR.toInt();
 }
+
+
+
 void loop()
 {
-  //Serial.println("here ");
-    if (Serial.available() > 0) {
-    // read the incoming byte:
-    Serial.print("I received: ");
-  }
-  
+  //  //Serial.println("here ");
+  //    if (Serial.available() > 0) {
+  //    // read the incoming byte:
+  //    Serial.print("I received: ");
+  //  }
+
   digitalWrite(X_STEP, HIGH);
   delayMicroseconds(31250);
   digitalWrite(X_STEP, LOW);
