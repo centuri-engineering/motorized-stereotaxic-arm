@@ -20,9 +20,12 @@ float SPEED_TRANSL_STEPS; // in steps/s
 float DELAY_AFTER_STEP;
 float DELAY_AFTER_STEP_MS; // delay in ms
 float DELAY_AFTER_STEP_MS_RND; // delay in ms
-float CORECT_SPEED_TRANSL;
+float CORRECT_SPEED_TRANSL;
 String INCOMING_STR;
 int INCOMING_INT;
+String INCOMING_STR2;
+bool STARTING = false;
+int ESTIMATED_TIME;
 
 void setup()
 {
@@ -38,42 +41,47 @@ void setup()
   SPEED_TRANSL_STEPS = SPEED_TRANSL * STEPS_PER_UM;
   DELAY_AFTER_STEP_MS = 1 / SPEED_TRANSL_STEPS * 1000;
   DELAY_AFTER_STEP_MS_RND = round(DELAY_AFTER_STEP_MS);
-  CORECT_SPEED_TRANSL = 1 / DELAY_AFTER_STEP_MS_RND * 1000 / STEPS_PER_UM;
+  CORRECT_SPEED_TRANSL = 1 / DELAY_AFTER_STEP_MS_RND * 1000 / STEPS_PER_UM;
 
-  Serial.println("Type the distance (in um), then enter : ");
-  Serial.println("(Positive values => arm will go up; Negative values => arm will go down.)");
-  while (Serial.available() <= 0) {
+  while (STARTING == false)
+  {
+    Serial.println("Type the distance (in um), then press 'enter' : ");
+    Serial.println("(Positive values => arm will go up; Negative values => arm will go down.)\n");
+    while (Serial.available() <= 0) {
+    }
+    // read the incoming byte:
+    INCOMING_STR = Serial.readString();
+    INCOMING_INT = INCOMING_STR.toInt();
+
+    Serial.println("Resume:");
+    Serial.print("Corrected speed (um/s): ");
+    Serial.println(CORRECT_SPEED_TRANSL);
+    Serial.print("Distance (um): ");
+    Serial.println(INCOMING_INT);
+    ESTIMATED_TIME = INCOMING_INT/CORRECT_SPEED_TRANSL*60;
+    Serial.print("Estimated time (min) : ");
+    Serial.println(ESTIMATED_TIME);
+    Serial.println("Type 'y' to contine, 'n' restart process, then press 'enter': \n");
+
+    while (Serial.available() <= 0)
+    {
+    }
+    // read the incoming byte:
+    INCOMING_STR2 = Serial.readString();
+    if (INCOMING_STR2 == "y\n")
+    {
+      STARTING = true;
+    }
   }
-  // read the incoming byte:
-  INCOMING_STR = Serial.readString();
-  INCOMING_INT = INCOMING_STR.toInt();
+  Serial.println("Let's go! ");
 
-  Serial.println("Resume:");
-  Serial.print("Corrected speed (um/s): ");
-  Serial.println(CORECT_SPEED_TRANSL);
-  Serial.print("Distance (um): ");
-  Serial.println(INCOMING_INT);
-
-  
-  Serial.println("Type the distance (in um), then enter : ");
-  Serial.println("(Positive values => arm will go up; Negative values => arm will go down.)");
-  while (Serial.available() <= 0) {
-  }
-  // read the incoming byte:
-  INCOMING_STR = Serial.readString();
-  INCOMING_INT = INCOMING_STR.toInt();
 }
 
 
 
 void loop()
 {
-  //  //Serial.println("here ");
-  //    if (Serial.available() > 0) {
-  //    // read the incoming byte:
-  //    Serial.print("I received: ");
-  //  }
-
+  
   digitalWrite(X_STEP, HIGH);
   delayMicroseconds(31250);
   digitalWrite(X_STEP, LOW);
